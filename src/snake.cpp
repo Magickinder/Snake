@@ -85,6 +85,8 @@ void CSnake::collision(){
             speed++;
         }
         
+        snake.push_back(CPoint(snake.back().x, snake.back().y));
+        
         generateFruit();
     }
 }
