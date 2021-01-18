@@ -10,7 +10,8 @@ CSnake::CSnake(CRect r, char _c /*=' '*/):
     for(int i = 4; i > 0; i--)
         snake.push_back(CPoint(2 + i, 2));
         
-    //srand(time(0));
+    srand(time(0));
+    fruit = CPoint(rand() % geom.size.x + 1, rand() % geom.size.y + 1);
 }
 
 void CSnake::snakeMovement(int key){
@@ -32,6 +33,22 @@ void CSnake::snakeMovement(int key){
     }
 }
 
+void CSnake::generateFruit(){
+    while(1){
+        fruit = CPoint(rand() % geom.size.x + 1, rand() % geom.size.y + 1);
+    
+        for(unsigned i = 0; i < snake.size(); i++){
+            if(snake[i].x == fruit.x && snake[i].y == fruit.y)
+                continue;
+        }
+        
+        if(fruit.y >= geom.size.y - 1 || fruit.x >= geom.size.x - 1)
+            continue;
+            
+        break;
+    }
+}
+
 void CSnake::paint(){
     CFramedWindow::paint();
    
@@ -43,6 +60,9 @@ void CSnake::paint(){
             else
                 printl("%c", SNAKE_TAIL);
     }
+    
+    gotoyx(geom.topleft.y + fruit.y, geom.topleft.x + fruit.x);
+    printl("%c", FRUIT);
     
     if(help){
         gotoyx(geom.topleft.y + 5, geom.topleft.x + 5);

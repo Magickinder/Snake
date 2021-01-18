@@ -13,6 +13,7 @@ using namespace std;
 class CSnake:public CFramedWindow
 {
     vector <CPoint> snake;
+    CPoint fruit;
     bool paused = false;
     bool help = true;
     
@@ -23,6 +24,7 @@ public:
     void paint();
     bool handleEvent(int key);
     void snakeMovement(int key);
+    void generateFruit();
 };
 
 #endif
