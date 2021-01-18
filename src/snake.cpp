@@ -11,7 +11,34 @@ CSnake::CSnake(CRect r, char _c /*=' '*/):
         snake.push_back(CPoint(2 + i, 2));
         
     srand(time(0));
-    fruit = CPoint(rand() % geom.size.x + 1, rand() % geom.size.y + 1);
+    generateFruit();
+}
+
+void CSnake::paintPointsWindow(){
+    gotoyx(geom.topleft.y - 1, geom.topleft.x);
+    printl("|");
+    gotoyx(geom.topleft.y - 1, geom.topleft.x + 1);
+    if(points < 10)
+        printl("POINTS:  %d", points);
+    else
+        printl("POINTS: %d", points);
+    gotoyx(geom.topleft.y - 1, geom.topleft.x + 11);
+    printl("|");
+}
+
+void CSnake::paintSpeedWindow(){
+    if(speed != 5){
+        gotoyx(geom.topleft.y - 1, geom.topleft.x + 27);
+        printl("|");
+        gotoyx(geom.topleft.y - 1, geom.topleft.x + 12);
+        printl(" SPEED LEVEL: %d", speed);
+    }
+    else{
+        gotoyx(geom.topleft.y - 1, geom.topleft.x + 29);
+        printl("|");
+        gotoyx(geom.topleft.y - 1, geom.topleft.x + 12);
+        printl(" SPEED LEVEL: %s", "MAX");
+    }
 }
 
 void CSnake::snakeMovement(int key){
@@ -42,15 +69,30 @@ void CSnake::generateFruit(){
                 continue;
         }
         
-        if(fruit.y >= geom.size.y - 1 || fruit.x >= geom.size.x - 1)
+        if(fruit.y >= (geom.size.y - 1) || fruit.x >= (geom.size.x - 1))
             continue;
             
         break;
     }
 }
 
+void CSnake::collision(){
+    if(snake[0].x == fruit.x && snake[0].y == fruit.y){
+        points++;
+        if(points % 5 == 0 && speed < 5){
+            delay -= 70;
+            timeout(delay);
+            speed++;
+        }
+        
+        generateFruit();
+    }
+}
+
 void CSnake::paint(){
     CFramedWindow::paint();
+    paintPointsWindow();
+    paintSpeedWindow();
    
     for(vector<CPoint>::iterator i = snake.begin();
        i != snake.end(); i++){
@@ -80,9 +122,9 @@ void CSnake::paint(){
     }
 }
 
-
-
 bool CSnake::handleEvent(int key){
+    tabPaused = false;
+    
     switch(key){
         case 'h':
             help = !help;
@@ -91,7 +133,8 @@ bool CSnake::handleEvent(int key){
             paused = !paused;
         break;
         case '\t':
-            paused = true;
+            if(!paused)
+                tabPaused = true;
             return false;
         case KEY_UP:
         case KEY_DOWN:
@@ -122,6 +165,8 @@ bool CSnake::handleEvent(int key){
             break;
         }
     }
+    
+    collision();
        
     if(paused || help){
         CFramedWindow::handleEvent(key);
