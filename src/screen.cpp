@@ -13,7 +13,7 @@ void init_screen()
   initscr();
   cbreak();
   noecho();
-  timeout(20);
+  timeout(400);
   nonl();
   leaveok(stdscr,TRUE);
   intrflush(stdscr, FALSE);

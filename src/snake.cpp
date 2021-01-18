@@ -1,29 +1,44 @@
 #include "snake.h"
 
-#define SNAKE_HEAD '>'
-#define SNAKE_TAIL '-'
+#define SNAKE_HEAD '*'
+#define SNAKE_TAIL 'o'
+#define FRUIT '@'
 
 CSnake::CSnake(CRect r, char _c /*=' '*/):
   CFramedWindow(r, _c)
 {
-    for(int i = 0; i < 4; i++)
-        //snake.push_back(CPoint(15 - i, 10));
-        snake.push_back(CPoint(geom.topleft.x + 2 + i, geom.topleft.y + 2));
+    for(int i = 4; i > 0; i--)
+        snake.push_back(CPoint(2 + i, 2));
+        
+    //srand(time(0));
+}
+
+void CSnake::snakeMovement(int key){
+    if(key == KEY_UP){
+        if(currentDirection == right || currentDirection == left)
+            currentDirection = up;
+    }
+    else if(key == KEY_DOWN){
+        if(currentDirection == right || currentDirection == left)
+            currentDirection = down;
+    }
+    else if(key == KEY_RIGHT){
+        if(currentDirection == up || currentDirection == down)
+            currentDirection = right;
+    }
+    else if(key == KEY_LEFT){
+        if(currentDirection == up || currentDirection == down)
+            currentDirection = left;
+    }
 }
 
 void CSnake::paint(){
     CFramedWindow::paint();
-    
-    //Update snake coordinates when snake screen is moved
-    for(unsigned i = 0; i < snake.size(); i++){
-        snake[i].x = geom.topleft.x + 2 + i;
-        snake[i].y = geom.topleft.y + 2;
-    }
    
     for(vector<CPoint>::iterator i = snake.begin();
        i != snake.end(); i++){
-            gotoyx((*i).y, (*i).x);
-            if(i == snake.end() - 1)
+            gotoyx((*i).y + geom.topleft.y, (*i).x + geom.topleft.x);
+            if(i == snake.begin())
                 printl("%c", SNAKE_HEAD);
             else
                 printl("%c", SNAKE_TAIL);
@@ -45,6 +60,8 @@ void CSnake::paint(){
     }
 }
 
+
+
 bool CSnake::handleEvent(int key){
     switch(key){
         case 'h':
@@ -56,10 +73,36 @@ bool CSnake::handleEvent(int key){
         case '\t':
             paused = true;
             return false;
+        case KEY_UP:
+        case KEY_DOWN:
+        case KEY_RIGHT:
+        case KEY_LEFT:
+            if(!paused && !help)
+                snakeMovement(key);
+        break;
         default:
         break;
     }
-    
+       
+    if(!help && !paused){
+        snake.pop_back();
+        
+        switch(currentDirection){
+            case right:
+                snake.insert(snake.begin(), CPoint(snake[0].x + 1, snake[0].y));
+            break;
+            case left:
+                snake.insert(snake.begin(), CPoint(snake[0].x - 1, snake[0].y));
+            break;
+            case up:
+                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y - 1));
+            break;
+            case down:
+                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y + 1));
+            break;
+        }
+    }
+       
     if(paused || help){
         CFramedWindow::handleEvent(key);
         return true;
