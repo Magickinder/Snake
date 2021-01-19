@@ -155,15 +155,27 @@ bool CSnake::handleEvent(int key){
         switch(currentDirection){
             case right:
                 snake.insert(snake.begin(), CPoint(snake[0].x + 1, snake[0].y));
+                    
+                if(snake[0].x == geom.size.x - 1)
+                    snake[0] = CPoint(1, snake[0].y);
             break;
             case left:
                 snake.insert(snake.begin(), CPoint(snake[0].x - 1, snake[0].y));
+                
+                if(snake[0].x == 0)
+                    snake[0] = CPoint(geom.size.x - 2, snake[0].y);
             break;
             case up:
                 snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y - 1));
+                
+                if(snake[0].y == 0)
+                    snake[0] = CPoint(snake[0].x, geom.size.y - 2);
             break;
             case down:
                 snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y + 1));
+                
+                if(snake[0].y == geom.size.y - 1)
+                    snake[0] = CPoint(snake[0].x, 1);
             break;
         }
     }
