@@ -9,7 +9,7 @@ CSnake::CSnake(CRect r, char _c /*=' '*/):
 {
     for(int i = 4; i > 0; i--)
         snake.push_back(CPoint(2 + i, 2));
-        
+
     srand(time(0));
     generateFruit();
 }
@@ -89,12 +89,39 @@ void CSnake::collision(){
         
         generateFruit();
     }
+    
+    for(unsigned i = 1; i < snake.size(); i++){
+        if(snake[0].x == snake[i].x && snake[0].y == snake[i].y)
+            gameOver = true;
+    }
+}
+
+void CSnake::restart(){
+    while(snake.size() != 0)
+        snake.pop_back();
+    
+    for(int i = 4; i > 0; i--)
+        snake.push_back(CPoint(2 + i, 2));
+    
+    help = true;
+    paused = false;
+    gameOver = false;
+    currentDirection = right;
+    delay = 400;
+    points = 0;
+    speed = 1;
 }
 
 void CSnake::paint(){
     CFramedWindow::paint();
-    paintPointsWindow();
-    paintSpeedWindow();
+    if(!gameOver){
+        paintPointsWindow();
+        paintSpeedWindow();
+    }
+    else{
+        gotoyx(geom.topleft.y + 1, geom.topleft.x + 1);
+        printl("GAME OVER! Result:  %d", points);
+    }
    
     for(vector<CPoint>::iterator i = snake.begin();
        i != snake.end(); i++){
@@ -116,7 +143,7 @@ void CSnake::paint(){
         gotoyx(geom.topleft.y + 7, geom.topleft.x + 5);
         printl("r - restart game");
         gotoyx(geom.topleft.y + 8, geom.topleft.x + 5);
-        printl("esc - quit");
+        printl("q - quit");
         gotoyx(geom.topleft.y + 9, geom.topleft.x + 5);
         printl("arrows - move snake or");
         gotoyx(geom.topleft.y + 10, geom.topleft.x + 5);
@@ -124,15 +151,22 @@ void CSnake::paint(){
     }
 }
 
-bool CSnake::handleEvent(int key){
+bool CSnake::handleEvent(int key){  
     tabPaused = false;
-    
+  
     switch(key){
+        case 'H':
         case 'h':
             help = !help;
         break;
+        case 'P':
         case 'p':
             paused = !paused;
+        break;
+        case 'R':
+        case 'r':
+            restart();
+            return false;
         break;
         case '\t':
             if(!paused)
@@ -147,6 +181,14 @@ bool CSnake::handleEvent(int key){
         break;
         default:
         break;
+    }
+    
+    if(gameOver)
+        paused = true;
+    
+    if(paused || help){
+        CFramedWindow::handleEvent(key);
+        return true;
     }
        
     if(!help && !paused){
@@ -181,11 +223,6 @@ bool CSnake::handleEvent(int key){
     }
     
     collision();
-       
-    if(paused || help){
-        CFramedWindow::handleEvent(key);
-        return true;
-    }
     
     return true;
 }

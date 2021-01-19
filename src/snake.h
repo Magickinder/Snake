@@ -16,6 +16,7 @@ class CSnake:public CFramedWindow
     CPoint fruit;
     bool paused = false, tabPaused = false;
     bool help = true;
+    bool gameOver = false;
     unsigned points = 0, speed = 1, delay = 400;
     
     enum direction { up, down, right, left };
@@ -29,6 +30,7 @@ public:
     void snakeMovement(int key);
     void generateFruit();
     void collision();
+    void restart();
     
     unsigned getDelay(){
         return delay;
