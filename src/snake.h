@@ -27,7 +27,8 @@ public:
     void paintPointsWindow();
     void paintSpeedWindow();
     bool handleEvent(int key);
-    void snakeMovement(int key);
+    void snakeDirection(int key);
+    void snakeMovement();
     void generateFruit();
     void collision();
     void restart();

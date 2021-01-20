@@ -1,6 +1,6 @@
 #include "snake.h"
 
-#define SNAKE_HEAD '*'
+#define SNAKE_HEAD '+'
 #define SNAKE_TAIL 'o'
 #define FRUIT '@'
 
@@ -10,6 +10,7 @@ CSnake::CSnake(CRect r, char _c /*=' '*/):
     for(int i = 4; i > 0; i--)
         snake.push_back(CPoint(2 + i, 2));
 
+    timeout(400);
     srand(time(0));
     generateFruit();
 }
@@ -41,7 +42,7 @@ void CSnake::paintSpeedWindow(){
     }
 }
 
-void CSnake::snakeMovement(int key){
+void CSnake::snakeDirection(int key){
     if(key == KEY_UP){
         if(currentDirection == right || currentDirection == left)
             currentDirection = up;
@@ -58,6 +59,35 @@ void CSnake::snakeMovement(int key){
         if(currentDirection == up || currentDirection == down)
             currentDirection = left;
     }
+}
+
+void CSnake::snakeMovement(){
+    switch(currentDirection){
+            case right:
+                snake.insert(snake.begin(), CPoint(snake[0].x + 1, snake[0].y));
+                    
+                if(snake[0].x == geom.size.x - 1)
+                    snake[0] = CPoint(1, snake[0].y);
+            break;
+            case left:
+                snake.insert(snake.begin(), CPoint(snake[0].x - 1, snake[0].y));
+                
+                if(snake[0].x == 0)
+                    snake[0] = CPoint(geom.size.x - 2, snake[0].y);
+            break;
+            case up:
+                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y - 1));
+                
+                if(snake[0].y == 0)
+                    snake[0] = CPoint(snake[0].x, geom.size.y - 2);
+            break;
+            case down:
+                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y + 1));
+                
+                if(snake[0].y == geom.size.y - 1)
+                    snake[0] = CPoint(snake[0].x, 1);
+            break;
+        }
 }
 
 void CSnake::generateFruit(){
@@ -153,7 +183,7 @@ void CSnake::paint(){
 
 bool CSnake::handleEvent(int key){  
     tabPaused = false;
-  
+
     switch(key){
         case 'H':
         case 'h':
@@ -166,7 +196,7 @@ bool CSnake::handleEvent(int key){
         case 'R':
         case 'r':
             restart();
-            return false;
+            return true;
         break;
         case '\t':
             if(!paused)
@@ -176,8 +206,8 @@ bool CSnake::handleEvent(int key){
         case KEY_DOWN:
         case KEY_RIGHT:
         case KEY_LEFT:
-            if(!paused && !help)
-                snakeMovement(key);
+            if(!paused && !help && !gameOver)
+                snakeDirection(key);
         break;
         default:
         break;
@@ -193,33 +223,8 @@ bool CSnake::handleEvent(int key){
        
     if(!help && !paused){
         snake.pop_back();
-        
-        switch(currentDirection){
-            case right:
-                snake.insert(snake.begin(), CPoint(snake[0].x + 1, snake[0].y));
-                    
-                if(snake[0].x == geom.size.x - 1)
-                    snake[0] = CPoint(1, snake[0].y);
-            break;
-            case left:
-                snake.insert(snake.begin(), CPoint(snake[0].x - 1, snake[0].y));
-                
-                if(snake[0].x == 0)
-                    snake[0] = CPoint(geom.size.x - 2, snake[0].y);
-            break;
-            case up:
-                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y - 1));
-                
-                if(snake[0].y == 0)
-                    snake[0] = CPoint(snake[0].x, geom.size.y - 2);
-            break;
-            case down:
-                snake.insert(snake.begin(), CPoint(snake[0].x, snake[0].y + 1));
-                
-                if(snake[0].y == geom.size.y - 1)
-                    snake[0] = CPoint(snake[0].x, 1);
-            break;
-        }
+
+        snakeMovement();
     }
     
     collision();
